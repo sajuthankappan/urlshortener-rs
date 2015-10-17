@@ -1,0 +1,12 @@
+[package]
+name = "urlshortener"
+version = "0.0.1"
+authors = ["Saju Thankappan <sajuthankappan@gmail.com>"]
+
+[dependencies]
+urlshortener_codec = { git = "https://github.com/sajuthankappan/urlshortener-codec-rs.git"}
+bson = "*"
+mongodb = "*"
+serde = "*"
+serde_json = "*"
+serde_macros = "*"
