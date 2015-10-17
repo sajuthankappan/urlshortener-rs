@@ -44,26 +44,31 @@ impl UrlRepository {
         })
     }
 
-    pub fn add(&self, url: &mut models::Url) -> Result<bool, &str> {
+    pub fn add(&self, mut url: models::Url) -> Result<models::Url, &str> {
         let coll = self.get_urls_collection();
         let long_url = url.long_url.clone();
 
-        let doc: bson::Document;
-        if let Some(id) = url.id.clone() {
-            doc = doc! { "_id" => id,
-                             "longUrl" => long_url };
-        }
-        else {
+        if let None = url.id {
             let num = CounterRepository::new().increment_counter("Url");
-            let id = codec::encode(num);
-            //let url.id = Some(id);
-            doc = doc! { "_id" => id,
-                         "longUrl" => long_url };
+            url.id = Some(codec::encode(num));
         }
+        let id = url.id.clone().unwrap();
+        let doc = doc! { "_id" => id,
+                         "longUrl" => long_url };
 
-        let _ = coll.insert_one(doc, None).unwrap();
+        let insert_result = coll.insert_one(doc, None);
+        let result = match insert_result {
+            Ok(v) => match v.inserted_id {
+                None => Err("Alias already exists."),
+                Some(_) => Ok(url)
+            },
+            Err(e) => {
+                println!("Err e {}", e);
+                Err("Error occurred")
+            }
+        };
 
-        Ok(true)
+        result
     }
 
     fn get_urls_collection(&self) -> mongodb::coll::Collection {
