@@ -35,7 +35,35 @@ impl UrlRepository {
             },
             //Some(Ok(doc)) => long_url = doc.get("LongUrl").unwrap().to_json().as_string().unwrap().to_string(),
             Some(Err(_)) => panic!("Failed to get next from server!"),
-            None => panic!("Server returned no results!"),
+            None => {return None},
+        };
+
+        Some(models::Url {
+            id: Some(id),
+            long_url: long_url
+        })
+    }
+
+    pub fn find_by_long_url(&self, long_url: String) -> Option<models::Url> {
+        let coll = self.get_urls_collection();
+        let url = long_url.clone();
+        let doc = doc! { "longUrl" => url };
+
+        let mut cursor = coll.find(Some(doc.clone()), None)
+            .ok().expect("Failed to execute find.");
+
+        let item = cursor.next();
+
+        let id: String;
+
+        match item {
+            Some(Ok(doc)) => match doc.get("_id") {
+                Some(&Bson::String(ref i)) => id = i.to_string(),
+                _ => panic!("Expected longUrl to be a string!"),
+            },
+            //Some(Ok(doc)) => long_url = doc.get("LongUrl").unwrap().to_json().as_string().unwrap().to_string(),
+            Some(Err(_)) => panic!("Failed to get next from server!"),
+            None => {return None},
         };
 
         Some(models::Url {
@@ -47,6 +75,12 @@ impl UrlRepository {
     pub fn add(&self, mut url: models::Url) -> Result<models::Url, &str> {
         let coll = self.get_urls_collection();
         let long_url = url.long_url.clone();
+
+        let find = self.find_by_long_url(long_url.clone());
+
+        if let Some(url) = find {
+            return Ok(url);
+        }
 
         if let None = url.id {
             let num = CounterRepository::new().increment_counter("Url");
