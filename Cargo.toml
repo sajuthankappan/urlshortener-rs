@@ -1,12 +1,12 @@
 [package]
 name = "urlshortener"
-version = "0.0.1"
+version = "0.1.0"
 authors = ["Saju Thankappan <sajuthankappan@gmail.com>"]
+description = "Urlshortener"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/sajuthankappan/urlshortener-rs"
 
 [dependencies]
-urlshortener_codec = { git = "https://github.com/sajuthankappan/urlshortener-codec-rs.git"}
-bson = "*"
-mongodb = "*"
-serde = "*"
-serde_json = "*"
-serde_macros = "*"
+urlshortener_codec = { git = "https://github.com/sajuthankappan/urlshortener-codec-rs"}
+urlshortener_core = { git = "https://github.com/sajuthankappan/urlshortener-core-rs"}
+urlshortener_data = { git = "https://github.com/sajuthankappan/urlshortener-data-rs"}
